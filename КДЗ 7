@@ -1,0 +1,160 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+
+namespace MazeGame
+{
+    class Program
+    {
+        const int Width = 20;
+        const int Height = 10;
+        static char[,] maze = new char[Height, Width];
+        static int playerX = 1;
+        static int playerY = 1;
+        static int exitX = Width - 2;
+        static int exitY = Height - 2;
+        static int timeLimit = 60;
+        static Stopwatch stopwatch = new Stopwatch(); 
+
+        static void Main(string[] args)
+        {
+            GenerateMaze();
+            PlaceExit();
+            StartGame();
+        }
+
+        static void GenerateMaze()
+        {
+            // Инициализация лабиринта
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    maze[y, x] = '#'; // Стены
+                }
+            }
+
+            Random rand = new Random();
+            Stack<(int, int)> stack = new Stack<(int, int)>();
+            (int, int) start = (1, 1);
+            maze[start.Item2, start.Item1] = ' ';
+            stack.Push(start);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                List<(int, int)> neighbors = GetNeighbors(current.Item1, current.Item2);
+
+                if (neighbors.Count > 0)
+                {
+                    stack.Push(current);
+                    var next = neighbors[rand.Next(neighbors.Count)];
+                    RemoveWall(current, next);
+                    stack.Push(next);
+                }
+            }
+        }
+
+        static List<(int, int)> GetNeighbors(int x, int y)
+        {
+            List<(int, int)> neighbors = new List<(int, int)>();
+
+            if (x > 1 && maze[y, x - 2] == '#') neighbors.Add((x - 2, y));
+            if (x < Width - 2 && maze[y, x + 2] == '#') neighbors.Add((x + 2, y));
+            if (y > 1 && maze[y - 2, x] == '#') neighbors.Add((x, y - 2));
+            if (y < Height - 2 && maze[y + 2, x] == '#') neighbors.Add((x, y + 2));
+
+            return neighbors;
+        }
+
+        static void RemoveWall((int x, int y) current, (int x, int y) next)
+        {
+            int wallX = (current.x + next.x) / 2;
+            int wallY = (current.y + next.y) / 2;
+            maze[wallY, wallX] = ' ';
+            maze[next.y, next.x] = ' ';
+        }
+
+        static void PlaceExit()
+        {
+            maze[exitY, exitX] = 'E'; // Выход
+        }
+
+        static void StartGame()
+        {
+            Console.Clear();
+            stopwatch.Start();
+            Thread timerThread = new Thread(Timer);
+            timerThread.Start();
+
+            while (true)
+            {
+                DrawMaze();
+                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                MovePlayer(keyInfo.Key);
+
+                if (playerX == exitX && playerY == exitY)
+                {
+                    stopwatch.Stop();
+                    Console.Clear();
+                    Console.WriteLine("Вы нашли выход! Поздравляем!");
+                    Console.WriteLine($"Время, затраченное на игру: {stopwatch.Elapsed.TotalSeconds:F2} секунд.");
+                    break;
+                }
+            }
+        }
+
+        static void DrawMaze()
+        {
+            Console.Clear();
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (x == playerX && y == playerY)
+                    {
+                        Console.Write('P'); // Игрок
+                    }
+                    else
+                    {
+                        Console.Write(maze[y, x]);
+                    }
+                }
+                Console.WriteLine();
+            }
+        }
+
+        static void MovePlayer(ConsoleKey key)
+        {
+            switch (key)
+            {
+                case ConsoleKey.W: // Вверх
+                    if (maze[playerY - 1, playerX] != '#') playerY--;
+                    break;
+                case ConsoleKey.S: // Вниз
+                    if (maze[playerY + 1, playerX] != '#') playerY++;
+                    break;
+                case ConsoleKey.A: // Влево
+                    if (maze[playerY, playerX - 1] != '#') playerX--;
+                    break;
+                case ConsoleKey.D: // Вправо
+                    if (maze[playerY, playerX + 1] != '#') playerX++;
+                    break;
+            }
+        }
+
+        static void Timer()
+        {
+            for (int i = timeLimit; i > 0; i--)
+            {
+                Console.SetCursorPosition(0, 0);
+                Console.WriteLine($"Осталось времени: {i} секунд.");
+                Thread.Sleep(1000);
+            }
+            Console.Clear();
+            Console.WriteLine("Время вышло! Игра окончена.");
+            Environment.Exit(0);
+        }
+    }
+}
