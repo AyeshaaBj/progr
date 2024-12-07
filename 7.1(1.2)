@@ -1,0 +1,80 @@
+using NUnit.Framework;
+using System;
+
+namespace DivisionTests
+{
+    [TestFixture]
+    public class ProgramTests
+    {
+        [Test]
+        public void TestDividePositiveNumbers()
+        {
+            // Arrange
+            int a = 10;
+            int b = 2;
+            int expectedOutput = 5;
+
+            // Act
+            int result = Program.Divide(a, b);
+
+            // Assert
+            Assert.AreEqual(expectedOutput, result);
+        }
+
+        [Test]
+        public void TestDivideNegativeNumbers()
+        {
+            // Arrange
+            int a = -10;
+            int b = -2;
+            int expectedOutput = 5;
+
+            // Act
+            int result = Program.Divide(a, b);
+
+            // Assert
+            Assert.AreEqual(expectedOutput, result);
+        }
+
+        [Test]
+        public void TestDivideMixedNumbers()
+        {
+            // Arrange
+            int a = 10;
+            int b = -2;
+            int expectedOutput = -5;
+
+            // Act
+            int result = Program.Divide(a, b);
+
+            // Assert
+            Assert.AreEqual(expectedOutput, result);
+        }
+
+        [Test]
+        public void TestDivideByZero()
+        {
+            // Arrange
+            int a = 10;
+            int b = 0;
+
+            // Act и Assert
+            Assert.Throws<ArgumentException>(() => Program.Divide(a, b));
+        }
+
+        [Test]
+        public void TestDivideZeroByNumber()
+        {
+            // Arrange
+            int a = 0;
+            int b = 10;
+            int expectedOutput = 0;
+
+            // Act
+            int result = Program.Divide(a, b);
+
+            // Assert
+            Assert.AreEqual(expectedOutput, result);
+        }
+    }
+}
