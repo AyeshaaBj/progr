@@ -1,4 +1,2 @@
 # дзешк
-<div id="header" align="center">
-  <img src="https://tenor.com/pEIDmd3S6DH.gif" width="100"/>
-</div>
+<div class="tenor-gif-embed" data-postid="9964714542453919200" data-share-method="host" data-aspect-ratio="1.22222" data-width="100%"><a href="https://tenor.com/view/bangboo-sniff-zenless-zone-zero-zzz-belobog-gif-9964714542453919200">Bangboo Sniff Sticker</a>from <a href="https://tenor.com/search/bangboo-stickers">Bangboo Stickers</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
