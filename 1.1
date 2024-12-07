@@ -1,0 +1,67 @@
+using NUnit.Framework;
+using System.IO;
+using System;
+
+namespace SimpleNumbersTests
+{
+    [TestFixture]
+    public class ProgramTests
+    {
+        [Test]
+        public void TestSimpleNumbersUpto10()
+        {
+            // Arrange
+            int input = 10;
+            string expectedOutput = "Простые числа, не превышающие 10:\n2\n3\n5\n7\n";
+
+            // Act
+            using (StringWriter sw = new StringWriter())
+            {
+                Console.SetOut(sw);
+                Program.PrintSimpleNumbers(input);
+                var result = sw.ToString();
+
+                // Assert
+                Assert.AreEqual(expectedOutput, result);
+            }
+        }
+
+        [Test]
+        public void TestSimpleNumbersUpto1()
+        {
+            // Arrange
+            int input = 1;
+            string expectedOutput = "Простые числа, не превышающие 1:\n";
+
+            // Act
+            using (StringWriter sw = new StringWriter())
+            {
+                Console.SetOut(sw);
+                Program.PrintSimpleNumbers(input);
+                var result = sw.ToString();
+
+                // Assert
+                Assert.AreEqual(expectedOutput, result);
+            }
+        }
+
+        [Test]
+        public void TestSimpleNumbersUpto20()
+        {
+            // Arrange
+            int input = 20;
+            string expectedOutput = "Простые числа, не превышающие 20:\n2\n3\n5\n7\n11\n13\n17\n19\n";
+
+            // Act
+            using (StringWriter sw = new StringWriter())
+            {
+                Console.SetOut(sw);
+                Program.PrintSimpleNumbers(input);
+                var result = sw.ToString();
+
+                // Assert
+                Assert.AreEqual(expectedOutput, result);
+            }
+        }
+    }
+}
