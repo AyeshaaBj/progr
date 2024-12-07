@@ -1,0 +1,83 @@
+using NUnit.Framework;
+
+namespace StringSearchTests
+{
+    [TestFixture]
+    public class ProgramTests
+    {
+        [Test]
+        public void TestCountOccurrencesBasic()
+        {
+            // Arrange
+            string s1 = "hello world, hello universe";
+            string s2 = "hello";
+            int expectedCount = 2;
+
+            // Act
+            int actualCount = ConsoleTest.Program.CountOccurrences(s1, s2);
+
+            // Assert
+            Assert.AreEqual(expectedCount, actualCount);
+        }
+
+        [Test]
+        public void TestCountOccurrencesNoMatch()
+        {
+            // Arrange
+            string s1 = "hello world";
+            string s2 = "test";
+            int expectedCount = 0;
+
+            // Act
+            int actualCount = ConsoleTest.Program.CountOccurrences(s1, s2);
+
+            // Assert
+            Assert.AreEqual(expectedCount, actualCount);
+        }
+
+        [Test]
+        public void TestCountOccurrencesEmptyString()
+        {
+            // Arrange
+            string s1 = "hello world";
+            string s2 = "";
+            int expectedCount = 0;
+
+            // Act
+            int actualCount = ConsoleTest.Program.CountOccurrences(s1, s2);
+
+            // Assert
+            Assert.AreEqual(expectedCount, actualCount);
+        }
+
+        [Test]
+        public void TestCountOccurrencesNullString()
+        {
+            // Arrange
+            string? s1 = null;
+            string s2 = "hello";
+            int expectedCount = 0;
+
+            // Act
+            int actualCount = ConsoleTest.Program.CountOccurrences(s1, s2);
+
+            // Assert
+            Assert.AreEqual(expectedCount, actualCount);
+        }
+
+        [Test]
+        public void TestCountOccurrencesMultipleMatches()
+        {
+            // Arrange
+            string s1 = "abcabcabc";
+            string s2 = "abc";
+            int expectedCount = 3;
+
+            // Act
+            int actualCount = ConsoleTest.Program.CountOccurrences(s1, s2);
+
+            // Assert
+            Assert.AreEqual(expectedCount, actualCount);
+        }
+    }
+}
