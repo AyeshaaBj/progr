@@ -1,0 +1,277 @@
+using System;
+using System.Collections.Generic;
+
+namespace SeaBattle
+{
+    public class Deck
+    {
+        public int X { get; }
+        public int Y { get; }
+        public bool IsHit { get; private set; }
+
+        public Deck(int x, int y)
+        {
+            X = x;
+            Y = y;
+            IsHit = false;
+        }
+
+        public void HitDeck()
+        {
+            IsHit = true;
+        }
+    }
+
+    public class Ship
+    {
+        public List<Deck> Decks { get; }
+        public bool IsAlive { get; private set; }
+
+        public Ship(List<Deck> decks)
+        {
+            Decks = decks;
+            IsAlive = true;
+        }
+
+        public bool IsSunk()
+        {
+            foreach (var deck in Decks)
+            {
+                if (!deck.IsHit)
+                {
+                    return false;
+                }
+            }
+            IsAlive = false;
+            return true;
+        }
+
+        public bool Hit(int x, int y)
+        {
+            foreach (var deck in Decks)
+            {
+                if (deck.X == x && deck.Y == y)
+                {
+                    deck.HitDeck();
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public class Board
+    {
+        public int Size { get; }
+        private string[,] grid;
+        public List<Ship> Ships { get; }
+
+        public Board(int size = 10)
+        {
+            Size = size;
+            grid = new string[size, size];
+            Ships = new List<Ship>();
+
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    grid[i, j] = " ";
+                }
+            }
+        }
+
+        public void PlaceShip(Ship ship)
+        {
+            foreach (var deck in ship.Decks)
+            {
+                if (IsValidPosition(deck.X, deck.Y) && grid[deck.X, deck.Y] == " ")
+                {
+                    grid[deck.X, deck.Y] = "O"; // O - палуба корабля
+                }
+                else
+                {
+                    throw new Exception("Неправильное положение корабля");
+                }
+            }
+            Ships.Add(ship);
+        }
+        public bool IsValidPosition(int x, int y)
+        {
+            return x >= 0 && x < Size && y >= 0 && y < Size;
+        }
+
+         public void MarkShot(int x, int y, string result)
+        {
+            if (IsValidPosition(x, y))
+            {
+                grid[x, y] = result;
+            }
+            else
+            {
+                throw new Exception("Неправильная координата выстрела");
+            }
+        }
+
+          public string GetCell(int x, int y)
+        {
+            if (IsValidPosition(x, y))
+            {
+                 return grid[x,y];
+            }
+            else
+            {
+               throw new Exception("неправильная ячейка");
+            }
+        }
+        public void Display(bool showShips = false)
+        {
+            for (int i = 0; i < Size; i++)
+            {
+                for (int j = 0; j < Size; j++)
+                {
+                  Console.Write(grid[i,j]+ " ");
+                }
+                Console.WriteLine();
+            }
+
+        }
+    }
+
+    public class Player
+    {
+        public string Name { get; }
+        public Board Board { get; }
+        public Player Opponent { get; set; }
+
+        public Player(string name, Board board)
+        {
+            Name = name;
+            Board = board;
+        }
+        public void SetOpponent(Player opponent)
+        {
+           Opponent = opponent;
+        }
+
+
+         public bool MakeShot(int x, int y)
+       {
+            if (Opponent.Board.GetCell(x,y) == "X" || Opponent.Board.GetCell(x,y) == "*")
+            {
+                 throw new Exception("Сюда уже стреляли!");
+            }
+           
+           foreach(Ship ship in Opponent.Board.Ships)
+           {
+                if (ship.Hit(x,y))
+                {
+                    Opponent.Board.MarkShot(x,y, "X");
+                    return true;
+                }
+           }
+            Opponent.Board.MarkShot(x,y, "*");
+            return false;
+        }
+
+         public bool AllShipsSunk()
+        {
+            foreach (var ship in Opponent.Board.Ships)
+            {
+                if (ship.IsAlive)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public class Game
+    {
+        public Player Player1 { get; }
+        public Player Player2 { get; }
+        public Player CurrentPlayer { get; private set; }
+
+        public Game(Player player1, Player player2)
+        {
+            Player1 = player1;
+            Player2 = player2;
+            CurrentPlayer = player1;
+        }
+        public void SwitchPlayer()
+        {
+            CurrentPlayer = (CurrentPlayer == Player1) ? Player2 : Player1;
+        }
+        public void StartGame()
+        {
+            Player1.SetOpponent(Player2);
+            Player2.SetOpponent(Player1);
+
+            while (true)
+            {
+                Console.WriteLine($"Ходит игрок: {CurrentPlayer.Name}");
+                Console.Write("Введите координату x: ");
+                int x = int.Parse(Console.ReadLine());
+                Console.Write("Введите координату y: ");
+                int y = int.Parse(Console.ReadLine());
+
+                try
+                {
+                    if (CurrentPlayer.MakeShot(x, y))
+                    {
+                         Console.WriteLine("Попал!");
+                    }
+                    else
+                    {
+                       Console.WriteLine("Мимо!");
+                        SwitchPlayer();
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    continue;
+                }
+                   
+                if (CurrentPlayer.AllShipsSunk())
+                {
+                    Console.WriteLine($"Игрок {CurrentPlayer.Name} победил!");
+                    break;
+                }
+            }
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Создание игровых полей
+            Board board1 = new Board();
+            Board board2 = new Board();
+
+             //Создание кораблей
+             Ship ship1 = new Ship(new List<Deck> { new Deck(0, 0), new Deck(0, 1) });
+             Ship ship2 = new Ship(new List<Deck> { new Deck(3, 3), new Deck(3, 4), new Deck(3, 5) });
+             Ship ship3 = new Ship(new List<Deck> { new Deck(7, 7) });
+
+
+            // Размещение кораблей на полях
+            board1.PlaceShip(ship1);
+            board1.PlaceShip(ship2);
+            board2.PlaceShip(ship3);
+
+
+            // Создание игроков
+            Player player1 = new Player("Игрок 1", board1);
+            Player player2 = new Player("Игрок 2", board2);
+
+            // Создание игры
+            Game game = new Game(player1, player2);
+
+            // Запуск игры
+            game.StartGame();
+        }
+    }
+}
